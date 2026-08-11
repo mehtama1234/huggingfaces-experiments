@@ -1,0 +1,11 @@
+# Python / scratch
+__pycache__/
+*.pyc
+.venv/
+# large media
+*.mp4
+*.mov
+*.png
+*.jpg
+site/
+.pytest_cache/
