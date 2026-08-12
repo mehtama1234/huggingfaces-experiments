@@ -1,7 +1,33 @@
-# Colab T4 run — InteracVid causality probe
+# Colab T4 runs
 
-**First real-model experiments in this repo**, run on actual Google Colab **Tesla
-T4 (15.6 GB)** VMs via the `colab` CLI.
+**Real-model experiments in this repo**, run on actual Google Colab **Tesla T4
+(15.6 GB)** VMs via the `colab` CLI.
+
+## Few-step latency/quality sweep — SD 1.5 (the "real-time = tiny steps" trick)
+
+The single most-shared efficiency move across Vidu S1, InteractiveAvatar, AlayaWorld
+and DreamX is generating in a handful of steps. Measured directly on a real diffusion
+model: same prompt at 1/2/4/8/16/32 steps, timing each and scoring image↔prompt
+agreement with CLIP.
+
+| steps | latency | eff. FPS | CLIP quality |
+| --- | --- | --- | --- |
+| 1 | 1.25s* | 0.80 | 0.218 |
+| 2 | 0.49s | 2.04 | 0.318 |
+| 4 | 0.77s | 1.29 | 0.320 |
+| 8 | 1.33s | 0.75 | **0.332** |
+| 16 | 2.45s | 0.41 | 0.326 |
+| 32 | 4.78s | 0.21 | 0.322 |
+
+*1-step latency is a warmup outlier (first generation includes CUDA kernel compile).
+
+**Reading:** quality climbs fast then **plateaus by ~8 steps** (0.33), while latency
+keeps growing ~linearly. So 4 steps (0.77s, CLIP 0.320) matches 32 steps (4.78s,
+CLIP 0.322) at **~6× lower latency** — the whole basis of "few-step = real-time."
+This is standard SD 1.5 on a T4 (not itself real-time); the papers reach true
+real-time by *distilling* to that low-step regime and by streaming, but the
+step→latency→quality relationship shown here is exactly the lever they pull.
+Script: `fewstep_latency_sweep.py`.
 
 ## v2 — stronger: Qwen2.5-3B + LLM-as-judge, 20 examples (scored via `eval_harness`)
 
