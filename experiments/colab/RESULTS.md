@@ -1,7 +1,28 @@
 # Colab T4 run — InteracVid causality probe
 
-**First real-model experiment in this repo**, run on an actual Google Colab **Tesla
-T4 (15.6 GB)** via the `colab` CLI, using `Qwen/Qwen2.5-1.5B-Instruct` (fp16).
+**First real-model experiments in this repo**, run on actual Google Colab **Tesla
+T4 (15.6 GB)** VMs via the `colab` CLI.
+
+## v2 — stronger: Qwen2.5-3B + LLM-as-judge, 20 examples (scored via `eval_harness`)
+
+```
+scorecard: interacvid/qwen2.5-3b/T4
+  judge_lift        : +0.310     (real 0.510  vs  shuffled 0.200)
+  judge_effect_size : +0.971     (Cohen's d ~1 = large effect)
+  f1_lift           : +0.086     (real 0.158  vs  shuffled 0.072)
+  · 20 examples; control = shuffled query; LLM judge floored every control at 0.2
+```
+
+The stronger model + LLM-as-judge give a **much cleaner signal** than v1: with a
+shuffled query the judge scored the reply at the floor (0.2) on **all 20**
+examples, while real-query replies averaged 0.51 — a large, unambiguous causal
+lift. Both the judge metric and the crude token-F1 agree in direction. Results were
+piped through `../eval_harness` (`causality_lift` → effect size → `Scorecard`),
+demonstrating the harness on a real run. Script: `interacvid_causality_probe_v2.py`.
+
+---
+
+## v1 — first run: Qwen2.5-1.5B, token-F1, 8 examples
 
 ## What it tested
 InteracVid's central premise: a genuine reaction is *caused by* the viewer's query,
